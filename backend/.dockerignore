@@ -1,0 +1,34 @@
+# Git and metadata
+.git
+.gitignore
+.dockerignore
+
+# Virtual environments (image installs deps via uv)
+.venv
+venv
+ENV
+
+# Secrets — use compose env_file / runtime env
+.env
+.env.*
+
+# Python cache
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache
+.mypy_cache
+.ruff_cache
+
+# Django local / dev artifacts
+*.log
+db.sqlite3
+db.sqlite3-journal
+staticfiles
+media
+
+# Docs and IDE (not needed in image)
+*.md
+.idea
+.vscode
