@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.text import slugify
+from django.core.validators import MaxValueValidator
 
 
 # --- Dynamic upload paths ---
@@ -12,6 +13,9 @@ def artifact_turntable_path(instance, filename):
 def artifact_image_path(instance, filename):
     # Stores static artifact images at: media/artifacts/<slug>/images/<file>
     return f'artifacts/{instance.artifact.slug}/images/{filename}'
+
+def room_audio_path(instance, filename):
+    return f'rooms/{instance.slug}/audio/{filename}'
 
 
 def room_panorama_path(instance, filename):
@@ -93,8 +97,8 @@ class Room(models.Model):
                                      help_text="360° panoramic image (equirectangular format)")
 
     # Audio guide for the whole room
-    audio_guide_ka = models.FileField(upload_to='rooms/audio/', blank=True)
-    audio_guide_en = models.FileField(upload_to='rooms/audio/', blank=True)
+    audio_guide_ka = models.FileField(upload_to=room_audio_path, blank=True)
+    audio_guide_en = models.FileField(upload_to=room_audio_path, blank=True)
 
     cover_image = models.ImageField(upload_to='rooms/covers/', blank=True)
     order = models.PositiveSmallIntegerField(default=0)
@@ -152,10 +156,6 @@ class Artifact(models.Model):
     dimensions = models.CharField(max_length=150, blank=True)
     origin_location = models.CharField(max_length=200, blank=True)
 
-    # Whether this artifact has a 360° turntable image series uploaded
-    has_360_view = models.BooleanField(default=False,
-                                       help_text="True if a 360° photo series has been uploaded")
-
     # Per-artifact audio annotation (narration)
     audio_annotation_ka = models.FileField(upload_to='artifacts/audio/', blank=True)
     audio_annotation_en = models.FileField(upload_to='artifacts/audio/', blank=True)
@@ -174,6 +174,10 @@ class Artifact(models.Model):
         if not self.slug:
             self.slug = slugify(self.name_en or self.name_ka, allow_unicode=True)
         super().save(*args, **kwargs)
+
+    @property
+    def has_360_view(self):
+        return self.turntable_frames.exists()
 
     def __str__(self):
         return self.name_ka
@@ -203,12 +207,15 @@ class ArtifactImage(models.Model):
     class Meta:
         ordering = ['order']
 
+    def __str__(self):
+        return f"{self.artifact.name_ka} — {self.get_image_type_display()} #{self.order}"
+
 
 class ArtifactTurntableFrame(models.Model):
     """A single frame in the 360° turntable photo series for an artifact."""
 
     artifact = models.ForeignKey(Artifact, on_delete=models.CASCADE, related_name='turntable_frames')
-    image = models.ImageField(upload_to=artifact_turntable_path)
+    image = models.ImageField(validators=[MaxValueValidator(359)],upload_to=artifact_turntable_path)
     angle = models.PositiveSmallIntegerField(help_text="Angle in degrees, 0-359")
     order = models.PositiveSmallIntegerField(help_text="Frame order, starting from 0")
 
