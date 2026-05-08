@@ -21,7 +21,7 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.utils.text import slugify
 
-from backend.exhibits.models import Period, Room, Artifact, ArtifactImage
+from exhibits.models import Period, Room, Artifact, ArtifactImage
 
 MET_BASE = "https://collectionapi.metmuseum.org/public/collection/v1"
 
