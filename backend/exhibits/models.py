@@ -163,6 +163,9 @@ class Artifact(models.Model):
     is_featured = models.BooleanField(default=False)
     is_published = models.BooleanField(default=False)
     view_count = models.PositiveIntegerField(default=0)
+    # External source tracking — used by the Met seeder to stay idempotent
+    met_object_id = models.PositiveIntegerField(null=True, blank=True, unique=True, db_index=True)
+
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
