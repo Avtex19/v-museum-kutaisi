@@ -12,17 +12,20 @@ class PeriodViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Period.objects.all()
     serializer_class = PeriodSerializer
     lookup_field = 'slug'
+    pagination_class = None  # taxonomy is small; return everything
 
 
 class TopicViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Topic.objects.all()
     serializer_class = TopicSerializer
     lookup_field = 'slug'
+    pagination_class = None
 
 
 class RoomViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Room.objects.filter(is_published=True).select_related('period', 'topic')
     lookup_field = 'slug'
+    pagination_class = None  # only a handful of rooms; show them all
 
     def get_serializer_class(self):
         if self.action == 'retrieve':
