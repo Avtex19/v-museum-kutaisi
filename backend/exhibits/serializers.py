@@ -23,15 +23,48 @@ class TopicSerializer(serializers.ModelSerializer):
 class RoomListSerializer(serializers.ModelSerializer):
     period = PeriodSerializer(read_only=True)
     topic = TopicSerializer(read_only=True)
+    cover_image_url = serializers.SerializerMethodField()
+    artifact_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Room
-        fields = ['id', 'name_ka', 'name_en', 'slug', 'period', 'topic', 'cover_image', 'order']
+        fields = [
+            'id', 'name_ka', 'name_en', 'slug',
+            'period', 'topic',
+            'cover_image', 'cover_image_url',
+            'artifact_count', 'order',
+        ]
+
+    def get_cover_image_url(self, room):
+        """Use the room's own cover_image if set, else fall back to the first
+        artifact's hero image so the UI is never blank."""
+        request = self.context.get('request')
+        if room.cover_image:
+            url = room.cover_image.url
+            return request.build_absolute_uri(url) if request else url
+
+        first_artifact = (
+            room.artifacts.filter(is_published=True)
+            .prefetch_related('images')
+            .first()
+        )
+        if not first_artifact:
+            return None
+        hero = first_artifact.images.filter(image_type='hero').first() \
+            or first_artifact.images.first()
+        if not hero:
+            return None
+        url = hero.image.url
+        return request.build_absolute_uri(url) if request else url
+
+    def get_artifact_count(self, room):
+        return room.artifacts.filter(is_published=True).count()
 
 
 class RoomDetailSerializer(serializers.ModelSerializer):
     period = PeriodSerializer(read_only=True)
     topic = TopicSerializer(read_only=True)
+    artifacts = serializers.SerializerMethodField()
 
     class Meta:
         model = Room
@@ -41,7 +74,12 @@ class RoomDetailSerializer(serializers.ModelSerializer):
             'description_ka', 'description_en',
             'panorama_360', 'audio_guide_ka', 'audio_guide_en',
             'cover_image', 'order', 'is_published',
+            'artifacts',
         ]
+
+    def get_artifacts(self, room):
+        qs = room.artifacts.filter(is_published=True).prefetch_related('images')
+        return ArtifactListSerializer(qs, many=True, context=self.context).data
 
 
 class ArtifactImageSerializer(serializers.ModelSerializer):
