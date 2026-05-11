@@ -218,8 +218,11 @@ class ArtifactTurntableFrame(models.Model):
     """A single frame in the 360° turntable photo series for an artifact."""
 
     artifact = models.ForeignKey(Artifact, on_delete=models.CASCADE, related_name='turntable_frames')
-    image = models.ImageField(validators=[MaxValueValidator(359)],upload_to=artifact_turntable_path)
-    angle = models.PositiveSmallIntegerField(help_text="Angle in degrees, 0-359")
+    angle = models.PositiveSmallIntegerField(
+        validators=[MaxValueValidator(359)],
+        help_text="Angle in degrees, 0-359"
+    )
+    image = models.ImageField(upload_to=artifact_turntable_path)
     order = models.PositiveSmallIntegerField(help_text="Frame order, starting from 0")
 
     class Meta:
