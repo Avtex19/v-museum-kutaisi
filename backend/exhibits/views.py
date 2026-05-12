@@ -37,6 +37,18 @@ class ArtifactViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Artifact.objects.filter(is_published=True).select_related('period', 'room')
     lookup_field = 'slug'
 
+    # Filtering
+    filterset_fields = {
+        'category': ['exact'],
+        'is_featured': ['exact'],
+        'period__slug': ['exact'],
+        'room__slug': ['exact'],
+        'topics__slug': ['exact'],
+    }
+    search_fields = ['name_ka', 'name_en', 'culture', 'material', 'origin_location']
+    ordering_fields = ['name_en', 'name_ka', 'created_at', 'view_count']
+    ordering = ['-is_featured', 'name_ka']  # default ordering
+
     def get_serializer_class(self):
         if self.action == 'retrieve':
             return ArtifactDetailSerializer
@@ -44,6 +56,8 @@ class ArtifactViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         qs = super().get_queryset()
+        if self.action == 'list':
+            qs = qs.prefetch_related('images')  # for hero_image in list view
         if self.action == 'retrieve':
             qs = qs.prefetch_related('topics', 'images', 'turntable_frames')
         return qs
