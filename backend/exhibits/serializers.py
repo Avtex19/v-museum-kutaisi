@@ -131,3 +131,29 @@ class ArtifactDetailSerializer(serializers.ModelSerializer):
             'is_featured', 'is_published', 'has_360_view',
             'view_count', 'created_at', 'updated_at',
         ]
+
+
+class AdminRoomSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Room
+        fields = [
+            'id', 'name_ka', 'name_en', 'slug',
+            'period', 'topic',
+            'description_ka', 'description_en',
+            'panorama_360', 'audio_guide_ka', 'audio_guide_en',
+            'cover_image', 'order', 'is_published',
+        ]
+
+
+class AdminArtifactSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Artifact
+        fields = [
+            'id', 'name_ka', 'name_en', 'slug',
+            'period', 'room', 'topics',
+            'short_description_ka', 'short_description_en',
+            'description_ka', 'description_en',
+            'category', 'culture', 'date_range', 'material', 'dimensions', 'origin_location',
+            'audio_annotation_ka', 'audio_annotation_en',
+            'is_featured', 'is_published',
+        ]

@@ -1,10 +1,12 @@
 from rest_framework import viewsets
+from rest_framework.permissions import IsAdminUser
 
 from .models import Period, Topic, Room, Artifact
 from .serializers import (
     PeriodSerializer, TopicSerializer,
     RoomListSerializer, RoomDetailSerializer,
     ArtifactListSerializer, ArtifactDetailSerializer,
+    AdminRoomSerializer, AdminArtifactSerializer,
 )
 
 
@@ -61,3 +63,17 @@ class ArtifactViewSet(viewsets.ReadOnlyModelViewSet):
         if self.action == 'retrieve':
             qs = qs.prefetch_related('topics', 'images', 'turntable_frames')
         return qs
+
+
+class AdminRoomViewSet(viewsets.ModelViewSet):
+    queryset = Room.objects.all().select_related('period', 'topic')
+    serializer_class = AdminRoomSerializer
+    permission_classes = [IsAdminUser]
+    lookup_field = 'slug'
+
+
+class AdminArtifactViewSet(viewsets.ModelViewSet):
+    queryset = Artifact.objects.all().select_related('period', 'room')
+    serializer_class = AdminArtifactSerializer
+    permission_classes = [IsAdminUser]
+    lookup_field = 'slug'
