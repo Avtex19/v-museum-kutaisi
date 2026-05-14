@@ -52,13 +52,15 @@ export function ArtifactFilters({ action, values, periods, rooms }: Props) {
         ))}
       </Select>
 
-      <Select name="room" value={values.room} placeholder="Room">
-        {rooms.map((r) => (
-          <option key={r.slug} value={r.slug}>
-            {r.name_en || r.name_ka}
-          </option>
-        ))}
-      </Select>
+      {rooms.length > 0 && (
+        <Select name="room" value={values.room} placeholder="Room">
+          {rooms.map((r) => (
+            <option key={r.slug} value={r.slug}>
+              {r.name_en || r.name_ka}
+            </option>
+          ))}
+        </Select>
+      )}
 
       <Select name="ordering" value={values.ordering} placeholder="Sort">
         <option value="name_en">Name A→Z</option>

@@ -1,18 +1,27 @@
 import { notFound } from "next/navigation";
 
-import { ArtifactCard } from "@/components/artifact/ArtifactCard";
 import { BackLink } from "@/components/ui/BackLink";
-import { EmptyState } from "@/components/ui/EmptyState";
 import { SectionLabel } from "@/components/ui/SectionLabel";
-import { fetchRoom } from "@/lib/api";
-import type { RoomDetail } from "@/lib/types";
+import { RoomDetailClient } from "@/components/RoomDetailClient";
+import { fetchRoom, fetchPeriods, fetchRooms, fetchTopics } from "@/lib/api";
+import type { ArtifactListItem, RoomDetail } from "@/lib/types";
+
+type SearchParams = {
+  search?: string;
+  category?: string;
+  period?: string;
+  ordering?: string;
+};
 
 export default async function RoomDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<SearchParams>;
 }) {
   const { slug } = await params;
+  const filters = await searchParams;
 
   let room: RoomDetail;
   try {
@@ -21,9 +30,17 @@ export default async function RoomDetailPage({
     notFound();
   }
 
+  const [periods, rooms, topics] = await Promise.all([
+    fetchPeriods(),
+    fetchRooms(),
+    fetchTopics(),
+  ]);
+
   const title = room.name_en || room.name_ka;
   const description = room.description_en || room.description_ka;
   const audioSrc = room.audio_guide_en || room.audio_guide_ka;
+
+  const filtered = applyFilters(room.artifacts, filters);
 
   return (
     <main className="min-h-screen bg-neutral-950 text-neutral-100">
@@ -64,29 +81,52 @@ export default async function RoomDetailPage({
         )}
 
         <section className="mt-14">
-          <div className="mb-6 flex items-baseline justify-between">
-            <h2 className="text-2xl font-semibold">Artifacts in this room</h2>
-            <span className="text-sm text-neutral-500">
-              {room.artifacts.length}{" "}
-              {room.artifacts.length === 1 ? "item" : "items"}
-            </span>
-          </div>
-
-          {room.artifacts.length === 0 ? (
-            <EmptyState>No artifacts in this room yet.</EmptyState>
-          ) : (
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {room.artifacts.map((artifact) => (
-                <ArtifactCard
-                  key={artifact.id}
-                  artifact={artifact}
-                  variant="compact"
-                />
-              ))}
-            </div>
-          )}
+          <RoomDetailClient
+            artifacts={filtered}
+            roomSlug={slug}
+            periods={periods}
+            rooms={rooms}
+            topics={topics}
+            filterValues={filters}
+          />
         </section>
       </div>
     </main>
   );
+}
+
+function applyFilters(
+  artifacts: ArtifactListItem[],
+  filters: SearchParams
+): ArtifactListItem[] {
+  let result = [...artifacts];
+
+  if (filters.search) {
+    const q = filters.search.toLowerCase();
+    result = result.filter(
+      (a) =>
+        a.name_en.toLowerCase().includes(q) ||
+        a.name_ka.toLowerCase().includes(q)
+    );
+  }
+
+  if (filters.category) {
+    result = result.filter((a) => a.category === filters.category);
+  }
+
+  if (filters.period) {
+    result = result.filter((a) => a.period.slug === filters.period);
+  }
+
+  if (filters.ordering) {
+    result.sort((a, b) => {
+      switch (filters.ordering) {
+        case "name_en": return a.name_en.localeCompare(b.name_en);
+        case "-name_en": return b.name_en.localeCompare(a.name_en);
+        default: return 0;
+      }
+    });
+  }
+
+  return result;
 }

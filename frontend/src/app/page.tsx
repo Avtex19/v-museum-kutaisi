@@ -1,9 +1,12 @@
-import { RoomCard } from "@/components/room/RoomCard";
-import { EmptyState } from "@/components/ui/EmptyState";
-import { fetchRooms } from "@/lib/api";
+import { fetchRooms, fetchPeriods, fetchTopics } from "@/lib/api";
+import { HomeClient } from "@/components/HomeClient";
 
 export default async function HomePage() {
-  const rooms = await fetchRooms();
+  const [rooms, periods, topics] = await Promise.all([
+    fetchRooms(),
+    fetchPeriods(),
+    fetchTopics(),
+  ]);
 
   return (
     <main className="min-h-screen bg-neutral-950 text-neutral-100">
@@ -23,33 +26,7 @@ export default async function HomePage() {
         </div>
       </header>
 
-      <section className="mx-auto max-w-6xl px-6 py-16">
-        <div className="mb-8 flex items-baseline justify-between">
-          <h2 className="text-2xl font-semibold">Choose a room</h2>
-          <span className="text-sm text-neutral-400">
-            {rooms.length} {rooms.length === 1 ? "room" : "rooms"} open
-          </span>
-        </div>
-
-        {rooms.length === 0 ? (
-          <EmptyState>
-            <p>No rooms yet.</p>
-            <p className="mt-2 text-sm">
-              Run{" "}
-              <code className="rounded bg-neutral-800 px-1.5 py-0.5 text-amber-300">
-                python manage.py seed_rooms
-              </code>{" "}
-              to set up thematic rooms.
-            </p>
-          </EmptyState>
-        ) : (
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {rooms.map((room) => (
-              <RoomCard key={room.id} room={room} />
-            ))}
-          </div>
-        )}
-      </section>
+      <HomeClient rooms={rooms} periods={periods} topics={topics} />
     </main>
   );
 }
