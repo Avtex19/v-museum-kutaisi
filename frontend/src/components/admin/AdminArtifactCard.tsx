@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { ArtifactCard } from '@/components/artifact/ArtifactCard';
 import { EditArtifactModal } from '@/components/admin/EditArtifactModal';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { deleteArtifact } from '@/lib/adminApi';
 import type { ArtifactListItem, Period, RoomListItem, Topic } from '@/lib/types';
 
@@ -36,6 +37,14 @@ export function AdminArtifactCard({ artifact, variant, periods, rooms, topics, o
 
   return (
     <>
+      {confirming && (
+        <ConfirmModal
+          message={`Are you sure you want to delete "${artifact.name_en || artifact.name_ka}"?`}
+          onConfirm={handleDelete}
+          onCancel={() => setConfirming(false)}
+          loading={deleting}
+        />
+      )}
       {editing && (
         <EditArtifactModal
           slug={artifact.slug}
@@ -46,7 +55,6 @@ export function AdminArtifactCard({ artifact, variant, periods, rooms, topics, o
           onClose={() => setEditing(false)}
         />
       )}
-
       <div className="relative">
         <ArtifactCard artifact={artifact} variant={variant} />
         <div className="absolute right-2 top-2 z-10 flex gap-1">
@@ -56,25 +64,12 @@ export function AdminArtifactCard({ artifact, variant, periods, rooms, topics, o
           >
             Edit
           </button>
-          {confirming ? (
-            <>
-              <button onClick={handleDelete} disabled={deleting}
-                className="cursor-pointer rounded bg-red-600 px-2 py-1 text-xs font-medium text-white hover:bg-red-500 disabled:opacity-50">
-                {deleting ? '…' : 'Confirm'}
-              </button>
-              <button onClick={() => setConfirming(false)}
-                className="cursor-pointer rounded bg-neutral-700 px-2 py-1 text-xs text-neutral-200 hover:bg-neutral-600">
-                Cancel
-              </button>
-            </>
-          ) : (
-            <button
-              onClick={(e) => { e.preventDefault(); setConfirming(true); }}
-              className="cursor-pointer rounded bg-red-600/80 px-2 py-1 text-xs font-medium text-white hover:bg-red-500"
-            >
-              Delete
-            </button>
-          )}
+          <button
+            onClick={(e) => { e.preventDefault(); setConfirming(true); }}
+            className="cursor-pointer rounded bg-red-600/80 px-2 py-1 text-xs font-medium text-white hover:bg-red-500"
+          >
+            Delete
+          </button>
         </div>
       </div>
     </>
