@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "images.metmuseum.org" },
       { protocol: "http",  hostname: "localhost", port: "8000" },
       { protocol: "http",  hostname: "backend",   port: "8000" },
+      { protocol: "http",  hostname: "192.168.100.20", port: "8000" },
     ],
   },
 };
