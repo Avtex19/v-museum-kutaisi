@@ -9,14 +9,6 @@ type Frame = {
   order: number;
 };
 
-/**
- * Drag-to-rotate 360° viewer for a sequence of turntable frames.
- *
- * UX:
- *  - Pointer drag horizontally → frame index advances/retreats.
- *  - All frames are preloaded in the background so dragging is flicker-free.
- *  - Touch support comes for free via pointer events.
- */
 export function TurntableViewer({ frames }: { frames: Frame[] }) {
   const sorted = useMemo(
     () => [...frames].sort((a, b) => a.order - b.order),
@@ -27,7 +19,6 @@ export function TurntableViewer({ frames }: { frames: Frame[] }) {
   const [loadedCount, setLoadedCount] = useState(0);
   const drag = useRef<{ startX: number; startIdx: number } | null>(null);
 
-  // Preload every frame so dragging never shows a blank image
   useEffect(() => {
     let cancelled = false;
     setLoadedCount(0);
@@ -45,7 +36,6 @@ export function TurntableViewer({ frames }: { frames: Frame[] }) {
 
   if (sorted.length === 0) return null;
 
-  // Lower = more sensitive. ~6px per frame feels natural on desktop.
   const PIXELS_PER_FRAME = 6;
   const current = sorted[idx];
   const allLoaded = loadedCount === sorted.length;
