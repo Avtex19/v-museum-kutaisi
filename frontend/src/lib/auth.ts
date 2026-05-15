@@ -59,14 +59,45 @@ export async function logout(): Promise<void> {
   clearTokens();
 }
 
-export async function adminFetch(url: string, options: RequestInit = {}): Promise<Response> {
-  const token = getAccessToken();
-  return fetch(url, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-      ...options.headers,
-    },
+async function refreshAccessToken(): Promise<string | null> {
+  const refresh = getRefreshToken();
+  if (!refresh) return null;
+
+  const res = await fetch(`${base()}/api/auth/token/refresh/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ refresh }),
   });
+
+  if (!res.ok) {
+    clearTokens();
+    return null;
+  }
+
+  const data = await res.json();
+  localStorage.setItem('access_token', data.access);
+  return data.access;
+}
+
+function buildHeaders(token: string, options: RequestInit): HeadersInit {
+  const isFormData = options.body instanceof FormData;
+  return {
+    ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
+    Authorization: `Bearer ${token}`,
+    ...options.headers,
+  };
+}
+
+export async function adminFetch(url: string, options: RequestInit = {}): Promise<Response> {
+  let token = getAccessToken();
+
+  let res = await fetch(url, { ...options, headers: buildHeaders(token ?? '', options) });
+
+  if (res.status === 401) {
+    token = await refreshAccessToken();
+    if (!token) return res;
+    res = await fetch(url, { ...options, headers: buildHeaders(token, options) });
+  }
+
+  return res;
 }
