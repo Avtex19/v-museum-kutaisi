@@ -32,6 +32,8 @@ services:
     environment:
       - NEXT_PUBLIC_API_URL=http://192.168.100.20:8000/api
       - INTERNAL_API_URL=http://backend:8000/api
+      - NODE_ENV=production
+    command: sh -c "npm run build && npm start"
     depends_on:
       - backend
 

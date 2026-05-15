@@ -35,6 +35,7 @@ htmlcov/
 
 # Docker (local)
 *.local.yml
+docker-compose.override.yml
 
 # OS
 .DS_Store
