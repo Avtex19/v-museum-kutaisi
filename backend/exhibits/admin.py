@@ -42,7 +42,7 @@ class ArtifactAdmin(admin.ModelAdmin):
     search_fields = ['name_ka', 'name_en', 'slug']
     filter_horizontal = ['topics']
     inlines = [ArtifactImageInline, ArtifactTurntableFrameInline]
-    readonly_fields = ['view_count', 'created_at', 'updated_at']
+    readonly_fields = ['slug', 'view_count', 'created_at', 'updated_at']
 
     fieldsets = (
         ('Main Information', {

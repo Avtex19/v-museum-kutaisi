@@ -1,6 +1,6 @@
 from django.db import models
-from django.utils.text import slugify
 from django.core.validators import MaxValueValidator
+from autoslug import AutoSlugField
 
 
 # --- Dynamic upload paths ---
@@ -29,7 +29,7 @@ class Period(models.Model):
     """Historical period — e.g. Colchis, Middle Ages, Bagrationi era."""
     name_ka = models.CharField(max_length=100)
     name_en = models.CharField(max_length=100, blank=True)
-    slug = models.SlugField(unique=True, blank=True)
+    slug = AutoSlugField(populate_from='_slug_source', unique=True, always_update=False)
     description_ka = models.TextField(blank=True)
     description_en = models.TextField(blank=True)
 
@@ -43,11 +43,8 @@ class Period(models.Model):
     class Meta:
         ordering = ['order']
 
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            # allow_unicode=True keeps Georgian characters in the slug
-            self.slug = slugify(self.name_en or self.name_ka, allow_unicode=True)
-        super().save(*args, **kwargs)
+    def _slug_source(self):
+        return self.name_en or self.name_ka
 
     @property
     def era_display(self):
@@ -68,13 +65,11 @@ class Topic(models.Model):
     """Thematic tag — e.g. Religion, Trade, Art, Weaponry."""
     name_ka = models.CharField(max_length=100)
     name_en = models.CharField(max_length=100, blank=True)
-    slug = models.SlugField(unique=True, blank=True)
+    slug = AutoSlugField(populate_from='_slug_source', unique=True, always_update=False)
     icon = models.CharField(max_length=50, blank=True, help_text="Lucide icon name")
 
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.name_en or self.name_ka, allow_unicode=True)
-        super().save(*args, **kwargs)
+    def _slug_source(self):
+        return self.name_en or self.name_ka
 
     def __str__(self):
         return self.name_ka
@@ -87,7 +82,7 @@ class Room(models.Model):
 
     name_ka = models.CharField(max_length=150)
     name_en = models.CharField(max_length=150, blank=True)
-    slug = models.SlugField(unique=True, blank=True)
+    slug = AutoSlugField(populate_from='_slug_source', unique=True, always_update=False)
 
     description_ka = models.TextField(blank=True)
     description_en = models.TextField(blank=True)
@@ -107,10 +102,8 @@ class Room(models.Model):
     class Meta:
         ordering = ['order']
 
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.name_en or self.name_ka, allow_unicode=True)
-        super().save(*args, **kwargs)
+    def _slug_source(self):
+        return self.name_en or self.name_ka
 
     def __str__(self):
         return self.name_ka
@@ -138,7 +131,7 @@ class Artifact(models.Model):
 
     name_ka = models.CharField(max_length=200)
     name_en = models.CharField(max_length=200, blank=True)
-    slug = models.SlugField(unique=True, blank=True)
+    slug = AutoSlugField(populate_from='_slug_source', unique=True, always_update=False)
 
     # Short annotation — used on cards and filter results
     short_description_ka = models.CharField(max_length=300,
@@ -173,10 +166,8 @@ class Artifact(models.Model):
     class Meta:
         ordering = ['-is_featured', 'name_ka']
 
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.name_en or self.name_ka, allow_unicode=True)
-        super().save(*args, **kwargs)
+    def _slug_source(self):
+        return self.name_en or self.name_ka
 
     @property
     def has_360_view(self):
