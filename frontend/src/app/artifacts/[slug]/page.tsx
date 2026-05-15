@@ -1,9 +1,8 @@
 import { notFound } from "next/navigation";
 
 import { AboutSection } from "@/components/artifact/AboutSection";
-import { ArtifactGallery } from "@/components/artifact/ArtifactGallery";
+import { ArtifactMediaViewer } from "@/components/artifact/ArtifactMediaViewer";
 import { ArtifactMetadata } from "@/components/artifact/ArtifactMetadata";
-import { ArtifactVisual } from "@/components/artifact/ArtifactVisual";
 import { AudioGuide } from "@/components/artifact/AudioGuide";
 import { BackLink } from "@/components/ui/BackLink";
 import { CategoryTag } from "@/components/ui/CategoryTag";
@@ -29,10 +28,6 @@ export default async function ArtifactDetailPage({
   const about = artifact.description_en || artifact.description_ka;
   const audioSrc =
     artifact.audio_annotation_en || artifact.audio_annotation_ka;
-  const extraImages = artifact.images.filter(
-    (img) => img.image_type !== "hero"
-  );
-
   return (
     <main className="min-h-screen bg-neutral-950 text-neutral-100">
       <div className="mx-auto max-w-6xl px-6 py-10">
@@ -42,9 +37,8 @@ export default async function ArtifactDetailPage({
 
         <div className="mt-8 grid grid-cols-1 gap-12 lg:grid-cols-2">
           {/* Visual */}
-          <div className="space-y-4">
-            <ArtifactVisual artifact={artifact} />
-            <ArtifactGallery images={extraImages} />
+          <div>
+            <ArtifactMediaViewer artifact={artifact} />
           </div>
 
           {/* Info */}
