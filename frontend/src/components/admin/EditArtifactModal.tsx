@@ -1,10 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { updateArtifact } from '@/lib/adminApi';
+import Image from 'next/image';
+import { updateArtifact, uploadArtifactImage, deleteArtifactImage } from '@/lib/adminApi';
 import { fetchArtifact } from '@/lib/api';
 import { ARTIFACT_CATEGORIES } from '@/lib/categories';
-import type { ArtifactDetail, Period, RoomListItem, Topic } from '@/lib/types';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
+import { TurntableUploader } from '@/components/admin/TurntableUploader';
+import type { ArtifactDetail, ArtifactImage, Period, RoomListItem, Topic } from '@/lib/types';
 
 interface Props {
   slug: string;
@@ -17,12 +20,32 @@ interface Props {
 
 export function EditArtifactModal({ slug, periods, rooms, topics, onSuccess, onClose }: Props) {
   const [artifact, setArtifact] = useState<ArtifactDetail | null>(null);
+  const [images, setImages] = useState<ArtifactImage[]>([]);
+  const [confirmImageId, setConfirmImageId] = useState<number | null>(null);
+  const [deletingImage, setDeletingImage] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    fetchArtifact(slug).then(setArtifact).catch(() => setError('Failed to load artifact'));
+    fetchArtifact(slug).then((a) => {
+      setArtifact(a);
+      setImages(a.images);
+    }).catch(() => setError('Failed to load artifact'));
   }, [slug]);
+
+  async function handleDeleteImage() {
+    if (!confirmImageId) return;
+    setDeletingImage(true);
+    try {
+      await deleteArtifactImage(slug, confirmImageId);
+      setImages((prev) => prev.filter((img) => img.id !== confirmImageId));
+    } catch {
+      setError('Failed to delete image');
+    } finally {
+      setDeletingImage(false);
+      setConfirmImageId(null);
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -34,6 +57,7 @@ export function EditArtifactModal({ slug, periods, rooms, topics, onSuccess, onC
       .filter((t) => form.get(`topic_${t.id}`) === 'on')
       .map((t) => t.id);
     try {
+      const heroImage = form.get('hero_image') as File | null;
       await updateArtifact(slug, {
         name_ka: form.get('name_ka'),
         name_en: form.get('name_en'),
@@ -50,6 +74,9 @@ export function EditArtifactModal({ slug, periods, rooms, topics, onSuccess, onC
         is_featured: form.get('is_featured') === 'on',
         is_published: form.get('is_published') === 'on',
       });
+      if (heroImage && heroImage.size > 0) {
+        await uploadArtifactImage(slug, heroImage, 'hero');
+      }
       onSuccess();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update artifact');
@@ -107,6 +134,57 @@ export function EditArtifactModal({ slug, periods, rooms, topics, onSuccess, onC
             <Field label="Full Description (English)" name="description_en" multiline defaultValue={artifact.description_en} />
             <Field label="Material" name="material" defaultValue={artifact.material} />
             <Field label="Date Range" name="date_range" defaultValue={artifact.date_range} />
+
+            {confirmImageId && (
+              <ConfirmModal
+                message="Delete this image?"
+                onConfirm={handleDeleteImage}
+                onCancel={() => setConfirmImageId(null)}
+                loading={deletingImage}
+              />
+            )}
+
+            {images.length > 0 && (
+              <div>
+                <label className="mb-2 block text-sm text-neutral-400">
+                  Existing Images ({images.length})
+                </label>
+                <div className="max-h-48 overflow-y-auto rounded-lg border border-white/10 p-2">
+                  <div className="grid grid-cols-4 gap-2">
+                    {images.map((img) => (
+                      <div key={img.id} className="relative">
+                        <Image
+                          src={img.image}
+                          alt={img.image_type}
+                          width={80}
+                          height={80}
+                          className="h-20 w-full rounded-lg object-cover"
+                        />
+                        <span className="absolute bottom-0 left-0 right-0 rounded-b-lg bg-black/60 px-1 py-0.5 text-center text-[10px] text-neutral-300">
+                          {img.image_type}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setConfirmImageId(img.id)}
+                          className="absolute -right-1 -top-1 flex h-5 w-5 cursor-pointer items-center justify-center rounded-full bg-red-600 text-xs text-white hover:bg-red-500"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div>
+              <label className="mb-1 block text-sm text-neutral-400">Upload New Image</label>
+              <input type="file" name="hero_image" accept="image/*" className="w-full text-sm text-neutral-300 file:mr-3 file:cursor-pointer file:rounded-lg file:border-0 file:bg-amber-500/20 file:px-3 file:py-2 file:text-amber-300 hover:file:bg-amber-500/30" />
+            </div>
+
+            <div className="border-t border-white/10 pt-4">
+              <TurntableUploader slug={slug} initialFrames={artifact.turntable_frames} />
+            </div>
 
             {topics.length > 0 && (
               <div>
