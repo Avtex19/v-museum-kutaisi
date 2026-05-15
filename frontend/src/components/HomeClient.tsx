@@ -85,6 +85,7 @@ export function HomeClient({ rooms: initial, periods, topics }: Props) {
               </>
             ) : (
               <button
+                type="button"
                 onClick={() => setShowLogin(true)}
                 className="cursor-pointer rounded-lg border border-white/10 px-4 py-2 text-sm text-neutral-300 hover:bg-white/5"
               >
