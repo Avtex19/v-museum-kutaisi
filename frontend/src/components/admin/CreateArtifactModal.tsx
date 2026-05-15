@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { createArtifact } from '@/lib/adminApi';
+import { createArtifact, uploadArtifactImage } from '@/lib/adminApi';
 import { ARTIFACT_CATEGORIES } from '@/lib/categories';
 import type { Period, RoomListItem, Topic } from '@/lib/types';
 
@@ -29,7 +29,8 @@ export function CreateArtifactModal({ periods, rooms, topics, defaultRoomSlug, o
       .filter((t) => form.get(`topic_${t.id}`) === 'on')
       .map((t) => t.id);
     try {
-      await createArtifact({
+      const heroImage = form.get('hero_image') as File | null;
+      const artifact = await createArtifact({
         name_ka: form.get('name_ka'),
         name_en: form.get('name_en'),
         period: form.get('period'),
@@ -45,6 +46,9 @@ export function CreateArtifactModal({ periods, rooms, topics, defaultRoomSlug, o
         is_featured: form.get('is_featured') === 'on',
         is_published: form.get('is_published') === 'on',
       });
+      if (heroImage && heroImage.size > 0) {
+        await uploadArtifactImage(artifact.slug, heroImage, 'hero');
+      }
       onSuccess();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create artifact');
@@ -96,6 +100,11 @@ export function CreateArtifactModal({ periods, rooms, topics, defaultRoomSlug, o
           <Field label="Full Description (English)" name="description_en" multiline />
           <Field label="Material" name="material" />
           <Field label="Date Range" name="date_range" />
+
+          <div>
+            <label className="mb-1 block text-sm text-neutral-400">Hero Image</label>
+            <input type="file" name="hero_image" accept="image/*" className="w-full text-sm text-neutral-300 file:mr-3 file:cursor-pointer file:rounded-lg file:border-0 file:bg-amber-500/20 file:px-3 file:py-2 file:text-amber-300 hover:file:bg-amber-500/30" />
+          </div>
 
           {topics.length > 0 && (
             <div>

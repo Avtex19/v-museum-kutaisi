@@ -21,6 +21,7 @@ export function CreateRoomModal({ periods, topics, onSuccess, onClose }: Props) 
     setLoading(true);
     const form = new FormData(e.currentTarget);
     try {
+      const coverImage = form.get('cover_image') as File | null;
       await createRoom({
         name_ka: form.get('name_ka'),
         name_en: form.get('name_en'),
@@ -30,6 +31,7 @@ export function CreateRoomModal({ periods, topics, onSuccess, onClose }: Props) 
         description_en: form.get('description_en'),
         is_published: form.get('is_published') === 'on',
         order: Number(form.get('order')) || 0,
+        ...(coverImage && coverImage.size > 0 ? { cover_image: coverImage } : {}),
       });
       onSuccess();
     } catch (err) {
@@ -70,6 +72,11 @@ export function CreateRoomModal({ periods, topics, onSuccess, onClose }: Props) 
           <Field label="Description (Georgian)" name="description_ka" multiline />
           <Field label="Description (English)" name="description_en" multiline />
           <Field label="Order" name="order" type="number" />
+
+          <div>
+            <label className="mb-1 block text-sm text-neutral-400">Cover Image</label>
+            <input type="file" name="cover_image" accept="image/*" className="w-full text-sm text-neutral-300 file:mr-3 file:cursor-pointer file:rounded-lg file:border-0 file:bg-amber-500/20 file:px-3 file:py-2 file:text-amber-300 hover:file:bg-amber-500/30" />
+          </div>
 
           <label className="flex items-center gap-2 text-sm text-neutral-300 cursor-pointer">
             <input type="checkbox" name="is_published" className="accent-amber-400" />
