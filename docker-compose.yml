@@ -30,7 +30,7 @@ services:
       - ./frontend:/app
       - /app/node_modules
     environment:
-      - NEXT_PUBLIC_API_URL=http://192.168.100.20:8000/api
+      - NEXT_PUBLIC_API_URL=/api
       - INTERNAL_API_URL=http://backend:8000/api
       - NODE_ENV=production
     command: sh -c "npm run build && npm start"

@@ -5,10 +5,20 @@ const nextConfig: NextConfig = {
     unoptimized: true,
     remotePatterns: [
       { protocol: "https", hostname: "images.metmuseum.org" },
-      { protocol: "http",  hostname: "localhost", port: "8000" },
       { protocol: "http",  hostname: "backend",   port: "8000" },
-      { protocol: "http",  hostname: "192.168.100.20", port: "8000" },
     ],
+  },
+  async rewrites() {
+    return [
+      {
+        source: "/api/:path*",
+        destination: "http://backend:8000/api/:path*",
+      },
+      {
+        source: "/media/:path*",
+        destination: "http://backend:8000/media/:path*",
+      },
+    ];
   },
 };
 
