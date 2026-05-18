@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { translations } from "@/lib/translations";
+import { translations, localizeEra } from "@/lib/translations";
 import type { Lang } from "@/lib/translations";
 import type { RoomListItem } from "@/lib/types";
 
@@ -36,7 +36,7 @@ export function RoomCard({ room, lang = "en" }: { room: RoomListItem; lang?: Lan
           </h3>
           {room.period?.era_display && (
             <p className="mt-1 text-sm text-neutral-200">
-              {room.period.era_display}
+              {localizeEra(room.period.era_display, lang)}
             </p>
           )}
         </div>

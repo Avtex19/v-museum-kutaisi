@@ -5,7 +5,7 @@ import { SectionLabel } from "@/components/ui/SectionLabel";
 import { RoomDetailClient } from "@/components/RoomDetailClient";
 import { fetchRoom, fetchPeriods, fetchRooms, fetchTopics } from "@/lib/api";
 import { getLang, pick } from "@/lib/lang";
-import { translations } from "@/lib/translations";
+import { translations, localizeEra } from "@/lib/translations";
 import type { ArtifactListItem, RoomDetail } from "@/lib/types";
 
 type SearchParams = {
@@ -63,7 +63,7 @@ export default async function RoomDetailPage({
           </h1>
           {room.period?.era_display && (
             <p className="mt-2 text-lg text-neutral-400">
-              {room.period.era_display}
+              {localizeEra(room.period.era_display, lang)}
             </p>
           )}
         </header>

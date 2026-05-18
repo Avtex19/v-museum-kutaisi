@@ -1,5 +1,12 @@
 export type Lang = "en" | "ka";
 
+export function localizeEra(era: string | null | undefined, lang: Lang): string {
+  if (!era || lang === "en") return era ?? "";
+  return era
+    .replace(/\bBCE\b/g, "ძვ. წ.")
+    .replace(/\bCE\b/g, "ახ. წ.");
+}
+
 export const translations = {
   en: {
     // site

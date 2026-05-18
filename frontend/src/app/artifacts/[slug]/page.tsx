@@ -8,7 +8,7 @@ import { BackLink } from "@/components/ui/BackLink";
 import { CategoryTag } from "@/components/ui/CategoryTag";
 import { fetchArtifact } from "@/lib/api";
 import { getLang, pick } from "@/lib/lang";
-import { translations } from "@/lib/translations";
+import { translations, localizeEra, type Lang } from "@/lib/translations";
 import type { ArtifactDetail } from "@/lib/types";
 
 export default async function ArtifactDetailPage({
@@ -54,7 +54,7 @@ export default async function ArtifactDetailPage({
               {title}
             </h1>
 
-            <Meta artifact={artifact} />
+            <Meta artifact={artifact} lang={lang} />
 
             {lead && (
               <p className="mt-8 text-lg leading-relaxed text-neutral-200">
@@ -85,9 +85,9 @@ export default async function ArtifactDetailPage({
   );
 }
 
-function Meta({ artifact }: { artifact: ArtifactDetail }) {
+function Meta({ artifact, lang }: { artifact: ArtifactDetail; lang: Lang }) {
   const parts = [
-    artifact.period?.era_display,
+    localizeEra(artifact.period?.era_display, lang),
     artifact.culture,
     artifact.origin_location,
   ].filter(Boolean);

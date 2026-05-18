@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { translations } from "@/lib/translations";
+import { translations, localizeEra } from "@/lib/translations";
 import type { Lang } from "@/lib/translations";
 import type { ArtifactListItem } from "@/lib/types";
 
@@ -62,7 +62,7 @@ export function ArtifactCard({
         </h3>
         {!isCompact && artifact.period?.era_display && (
           <p className="mt-1 text-sm text-neutral-500">
-            {artifact.period.era_display}
+            {localizeEra(artifact.period.era_display, lang)}
           </p>
         )}
         <p
