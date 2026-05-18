@@ -5,11 +5,13 @@ import { ArtifactCard } from '@/components/artifact/ArtifactCard';
 import { EditArtifactModal } from '@/components/admin/EditArtifactModal';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { deleteArtifact } from '@/lib/adminApi';
+import type { Lang } from '@/lib/translations';
 import type { ArtifactListItem, Period, RoomListItem, Topic } from '@/lib/types';
 
 interface Props {
   artifact: ArtifactListItem;
   variant?: 'default' | 'compact';
+  lang?: Lang;
   periods: Period[];
   rooms: RoomListItem[];
   topics: Topic[];
@@ -17,7 +19,7 @@ interface Props {
   onUpdated: () => void;
 }
 
-export function AdminArtifactCard({ artifact, variant, periods, rooms, topics, onDeleted, onUpdated }: Props) {
+export function AdminArtifactCard({ artifact, variant, periods, rooms, topics, onDeleted, onUpdated, lang = "en" }: Props) {
   const [confirming, setConfirming] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -56,7 +58,7 @@ export function AdminArtifactCard({ artifact, variant, periods, rooms, topics, o
         />
       )}
       <div className="relative">
-        <ArtifactCard artifact={artifact} variant={variant} />
+        <ArtifactCard artifact={artifact} variant={variant} lang={lang} />
         <div className="absolute right-2 top-2 z-10 flex gap-1">
           <button
             onClick={(e) => { e.preventDefault(); setEditing(true); }}

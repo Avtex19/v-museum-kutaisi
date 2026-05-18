@@ -114,7 +114,7 @@ export function HomeClient({ rooms: initial, periods, topics, lang }: Props) {
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {rooms.map((room) =>
               loggedIn ? (
-                <AdminRoomCard key={room.id} room={room} onDeleted={handleRoomDeleted} />
+                <AdminRoomCard key={room.id} room={room} onDeleted={handleRoomDeleted} lang={lang} />
               ) : (
                 <RoomCard key={room.id} room={room} lang={lang} />
               )

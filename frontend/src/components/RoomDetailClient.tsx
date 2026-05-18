@@ -95,6 +95,7 @@ export function RoomDetailClient({ artifacts: initial, roomSlug, periods, rooms,
                 topics={topics}
                 onDeleted={handleArtifactDeleted}
                 onUpdated={() => window.location.reload()}
+                lang={lang}
               />
             ) : (
               <ArtifactCard key={artifact.id} artifact={artifact} variant="compact" lang={lang} />
