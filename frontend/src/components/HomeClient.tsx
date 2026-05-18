@@ -5,6 +5,7 @@ import { RoomCard } from '@/components/room/RoomCard';
 import { AdminRoomCard } from '@/components/admin/AdminRoomCard';
 import { CreateRoomModal } from '@/components/admin/CreateRoomModal';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { Toast } from '@/components/ui/Toast';
 import { LoginModal } from '@/components/auth/LoginModal';
 import { isAuthenticated, logout } from '@/lib/auth';
 import { translations } from '@/lib/translations';
@@ -24,6 +25,7 @@ export function HomeClient({ rooms: initial, periods, topics, lang }: Props) {
   const [loggedIn, setLoggedIn] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [showCreateRoom, setShowCreateRoom] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
     setLoggedIn(isAuthenticated());
@@ -41,6 +43,7 @@ export function HomeClient({ rooms: initial, periods, topics, lang }: Props) {
 
   function handleRoomDeleted(slug: string) {
     setRooms((prev) => prev.filter((r) => r.slug !== slug));
+    setToast(lang === 'ka' ? 'დარბაზი წარმატებით წაიშალა' : 'Room deleted successfully');
   }
 
   function handleRoomCreated() {
@@ -50,6 +53,7 @@ export function HomeClient({ rooms: initial, periods, topics, lang }: Props) {
 
   return (
     <>
+      {toast && <Toast message={toast} onClose={() => setToast(null)} />}
       {showLogin && (
         <LoginModal onSuccess={handleLoginSuccess} onClose={() => setShowLogin(false)} />
       )}

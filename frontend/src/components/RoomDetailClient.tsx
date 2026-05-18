@@ -6,6 +6,7 @@ import { AdminArtifactCard } from '@/components/admin/AdminArtifactCard';
 import { CreateArtifactModal } from '@/components/admin/CreateArtifactModal';
 import { ArtifactFilters } from '@/components/artifact/ArtifactFilters';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { Toast } from '@/components/ui/Toast';
 import { isAuthenticated } from '@/lib/auth';
 import { translations } from '@/lib/translations';
 import type { Lang } from '@/lib/translations';
@@ -26,6 +27,7 @@ export function RoomDetailClient({ artifacts: initial, roomSlug, periods, rooms,
   const [artifacts, setArtifacts] = useState(initial);
   const [loggedIn, setLoggedIn] = useState(false);
   const [showCreateArtifact, setShowCreateArtifact] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
     setLoggedIn(isAuthenticated());
@@ -33,6 +35,7 @@ export function RoomDetailClient({ artifacts: initial, roomSlug, periods, rooms,
 
   function handleArtifactDeleted(slug: string) {
     setArtifacts((prev) => prev.filter((a) => a.slug !== slug));
+    setToast(lang === 'ka' ? 'არტეფაქტი წარმატებით წაიშალა' : 'Artifact deleted successfully');
   }
 
   function handleArtifactCreated() {
@@ -42,6 +45,7 @@ export function RoomDetailClient({ artifacts: initial, roomSlug, periods, rooms,
 
   return (
     <>
+      {toast && <Toast message={toast} onClose={() => setToast(null)} />}
       {showCreateArtifact && (
         <CreateArtifactModal
           periods={periods}
