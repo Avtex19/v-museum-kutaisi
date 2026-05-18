@@ -1,17 +1,30 @@
+"use client";
+
+import { useState } from "react";
+
 import { SectionLabel } from "@/components/ui/SectionLabel";
 
-/**
- * Renders the "About" block for an artifact. If the description is just
- * a URL (some of our seeded data only has a Met link), show a styled
- * external-link button instead of an ugly URL string.
- */
-export function AboutSection({ text }: { text: string }) {
+const COLLAPSE_THRESHOLD = 300;
+
+export function AboutSection({
+  text,
+  label = "About this object",
+  viewMore = "View more",
+  viewLess = "View less",
+}: {
+  text: string;
+  label?: string;
+  viewMore?: string;
+  viewLess?: string;
+}) {
   const trimmed = text.trim();
   const isUrl = /^https?:\/\//i.test(trimmed);
+  const isLong = !isUrl && trimmed.length > COLLAPSE_THRESHOLD;
+  const [expanded, setExpanded] = useState(false);
 
   return (
     <section className="mt-10 border-t border-white/10 pt-6">
-      <SectionLabel>About this object</SectionLabel>
+      <SectionLabel>{label}</SectionLabel>
       {isUrl ? (
         <a
           href={trimmed}
@@ -23,9 +36,21 @@ export function AboutSection({ text }: { text: string }) {
           <span aria-hidden>↗</span>
         </a>
       ) : (
-        <p className="mt-3 whitespace-pre-line leading-relaxed text-neutral-300">
-          {trimmed}
-        </p>
+        <>
+          <p className="mt-3 whitespace-pre-line leading-relaxed text-neutral-300">
+            {isLong && !expanded
+              ? trimmed.slice(0, COLLAPSE_THRESHOLD) + "…"
+              : trimmed}
+          </p>
+          {isLong && (
+            <button
+              onClick={() => setExpanded((v) => !v)}
+              className="mt-3 text-sm font-medium text-amber-300 transition hover:text-amber-200"
+            >
+              {expanded ? viewLess : viewMore}
+            </button>
+          )}
+        </>
       )}
     </section>
   );

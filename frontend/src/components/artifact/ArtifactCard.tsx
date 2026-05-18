@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { translations } from "@/lib/translations";
+import type { Lang } from "@/lib/translations";
 import type { ArtifactListItem } from "@/lib/types";
 
 type Variant = "default" | "compact";
@@ -8,11 +10,16 @@ type Variant = "default" | "compact";
 export function ArtifactCard({
   artifact,
   variant = "default",
+  lang = "en",
 }: {
   artifact: ArtifactListItem;
   variant?: Variant;
+  lang?: Lang;
 }) {
-  const title = artifact.name_en || artifact.name_ka;
+  const tr = translations[lang];
+  const title = lang === "ka"
+    ? artifact.name_ka || artifact.name_en
+    : artifact.name_en || artifact.name_ka;
   const heroUrl = artifact.hero_image?.image;
   const isCompact = variant === "compact";
 
@@ -36,7 +43,7 @@ export function ArtifactCard({
           />
         ) : (
           <div className="flex h-full items-center justify-center text-sm text-neutral-500">
-            No image
+            {tr.noImage}
           </div>
         )}
         {artifact.has_360_view && (

@@ -1,10 +1,15 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { translations } from "@/lib/translations";
+import type { Lang } from "@/lib/translations";
 import type { RoomListItem } from "@/lib/types";
 
-export function RoomCard({ room }: { room: RoomListItem }) {
-  const title = room.name_en || room.name_ka;
+export function RoomCard({ room, lang = "en" }: { room: RoomListItem; lang?: Lang }) {
+  const tr = translations[lang];
+  const title = lang === "ka"
+    ? room.name_ka || room.name_en
+    : room.name_en || room.name_ka;
   const cover = room.cover_image_url ?? room.cover_image;
 
   return (
@@ -38,11 +43,10 @@ export function RoomCard({ room }: { room: RoomListItem }) {
       </div>
       <div className="flex items-center justify-between px-5 py-4">
         <span className="text-sm text-neutral-400">
-          {room.artifact_count}{" "}
-          {room.artifact_count === 1 ? "artifact" : "artifacts"}
+          {tr.artifactCount(room.artifact_count)}
         </span>
         <span className="text-sm font-medium text-amber-300 transition group-hover:translate-x-1 group-hover:text-amber-200">
-          Enter →
+          {tr.enter}
         </span>
       </div>
     </Link>

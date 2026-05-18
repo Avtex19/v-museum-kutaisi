@@ -1,14 +1,46 @@
 import type { ArtifactDetail } from "@/lib/types";
 
+type Labels = {
+  date: string;
+  material: string;
+  dimensions: string;
+  origin: string;
+  culture: string;
+};
+
+const EN_LABELS: Labels = {
+  date: "Date",
+  material: "Material",
+  dimensions: "Dimensions",
+  origin: "Origin",
+  culture: "Culture",
+};
+
+const KA_LABELS: Labels = {
+  date: "თარიღი",
+  material: "მასალა",
+  dimensions: "ზომები",
+  origin: "წარმოშობა",
+  culture: "კულტურა",
+};
+
 type Field = { label: string; value: string | null | undefined };
 
-export function ArtifactMetadata({ artifact }: { artifact: ArtifactDetail }) {
+export function ArtifactMetadata({
+  artifact,
+  lang = "en",
+}: {
+  artifact: ArtifactDetail;
+  lang?: "en" | "ka";
+}) {
+  const l = lang === "ka" ? KA_LABELS : EN_LABELS;
+
   const fields: Field[] = [
-    { label: "Date", value: artifact.date_range },
-    { label: "Material", value: artifact.material },
-    { label: "Dimensions", value: artifact.dimensions },
-    { label: "Origin", value: artifact.origin_location },
-    { label: "Culture", value: artifact.culture },
+    { label: l.date, value: artifact.date_range },
+    { label: l.material, value: artifact.material },
+    { label: l.dimensions, value: artifact.dimensions },
+    { label: l.origin, value: artifact.origin_location },
+    { label: l.culture, value: artifact.culture },
   ];
 
   const visible = fields.filter((f) => f.value);

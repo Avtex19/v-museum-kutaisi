@@ -4,6 +4,8 @@ import { BackLink } from "@/components/ui/BackLink";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { RoomDetailClient } from "@/components/RoomDetailClient";
 import { fetchRoom, fetchPeriods, fetchRooms, fetchTopics } from "@/lib/api";
+import { getLang, pick } from "@/lib/lang";
+import { translations } from "@/lib/translations";
 import type { ArtifactListItem, RoomDetail } from "@/lib/types";
 
 type SearchParams = {
@@ -22,6 +24,8 @@ export default async function RoomDetailPage({
 }) {
   const { slug } = await params;
   const filters = await searchParams;
+  const lang = await getLang();
+  const tr = translations[lang];
 
   let room: RoomDetail;
   try {
@@ -36,20 +40,23 @@ export default async function RoomDetailPage({
     fetchTopics(),
   ]);
 
-  const title = room.name_en || room.name_ka;
-  const description = room.description_en || room.description_ka;
-  const audioSrc = room.audio_guide_en || room.audio_guide_ka;
+  const title = pick(lang, room.name_en, room.name_ka);
+  const description = pick(lang, room.description_en, room.description_ka);
+  const audioSrc = pick(lang, room.audio_guide_en, room.audio_guide_ka);
+  const topicName = room.topic
+    ? pick(lang, room.topic.name_en, room.topic.name_ka)
+    : tr.exhibition;
 
   const filtered = applyFilters(room.artifacts, filters);
 
   return (
     <main className="min-h-screen bg-neutral-950 text-neutral-100">
       <div className="mx-auto max-w-6xl px-6 py-10">
-        <BackLink href="/">All rooms</BackLink>
+        <BackLink href="/">{tr.backAllRooms}</BackLink>
 
         <header className="mt-8">
           <p className="text-xs font-medium uppercase tracking-[0.2em] text-amber-300">
-            {room.topic?.name_en || room.topic?.name_ka || "Exhibition"}
+            {topicName}
           </p>
           <h1 className="mt-3 font-serif text-5xl font-bold tracking-tight">
             {title}
@@ -65,7 +72,7 @@ export default async function RoomDetailPage({
           <section className="mt-10 grid grid-cols-1 gap-8 md:grid-cols-3">
             {description && (
               <div className="md:col-span-2">
-                <SectionLabel>About this room</SectionLabel>
+                <SectionLabel>{tr.aboutThisRoom}</SectionLabel>
                 <p className="mt-3 whitespace-pre-line text-neutral-300">
                   {description}
                 </p>
@@ -73,7 +80,7 @@ export default async function RoomDetailPage({
             )}
             {audioSrc && (
               <div>
-                <SectionLabel>Audio guide</SectionLabel>
+                <SectionLabel>{tr.audioGuide}</SectionLabel>
                 <audio controls src={audioSrc} className="mt-3 w-full" />
               </div>
             )}
@@ -88,6 +95,7 @@ export default async function RoomDetailPage({
             rooms={rooms}
             topics={topics}
             filterValues={filters}
+            lang={lang}
           />
         </section>
       </div>

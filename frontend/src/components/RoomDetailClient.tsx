@@ -7,6 +7,8 @@ import { CreateArtifactModal } from '@/components/admin/CreateArtifactModal';
 import { ArtifactFilters } from '@/components/artifact/ArtifactFilters';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { isAuthenticated } from '@/lib/auth';
+import { translations } from '@/lib/translations';
+import type { Lang } from '@/lib/translations';
 import type { ArtifactListItem, Period, RoomListItem, Topic } from '@/lib/types';
 
 interface Props {
@@ -16,9 +18,11 @@ interface Props {
   rooms: RoomListItem[];
   topics: Topic[];
   filterValues: { search?: string; category?: string; period?: string; ordering?: string };
+  lang: Lang;
 }
 
-export function RoomDetailClient({ artifacts: initial, roomSlug, periods, rooms, topics, filterValues }: Props) {
+export function RoomDetailClient({ artifacts: initial, roomSlug, periods, rooms, topics, filterValues, lang }: Props) {
+  const tr = translations[lang];
   const [artifacts, setArtifacts] = useState(initial);
   const [loggedIn, setLoggedIn] = useState(false);
   const [showCreateArtifact, setShowCreateArtifact] = useState(false);
@@ -50,17 +54,17 @@ export function RoomDetailClient({ artifacts: initial, roomSlug, periods, rooms,
       )}
 
       <div className="mb-6 flex items-center justify-between">
-        <h2 className="text-2xl font-semibold">Artifacts in this room</h2>
+        <h2 className="text-2xl font-semibold">{tr.artifactsInRoom}</h2>
         <div className="flex items-center gap-3">
           <span className="text-sm text-neutral-500">
-            {artifacts.length} {artifacts.length === 1 ? 'item' : 'items'}
+            {tr.itemCount(artifacts.length)}
           </span>
           {loggedIn && (
             <button
               onClick={() => setShowCreateArtifact(true)}
               className="cursor-pointer rounded-lg bg-amber-500 px-4 py-2 text-sm font-medium text-neutral-950 hover:bg-amber-400"
             >
-              + Add Artifact
+              {tr.addArtifact}
             </button>
           )}
         </div>
@@ -72,11 +76,12 @@ export function RoomDetailClient({ artifacts: initial, roomSlug, periods, rooms,
           values={filterValues}
           periods={periods}
           rooms={[]}
+          lang={lang}
         />
       </div>
 
       {artifacts.length === 0 ? (
-        <EmptyState>No artifacts match your filters.</EmptyState>
+        <EmptyState>{tr.noArtifactsFilters}</EmptyState>
       ) : (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {artifacts.map((artifact) =>
@@ -92,7 +97,7 @@ export function RoomDetailClient({ artifacts: initial, roomSlug, periods, rooms,
                 onUpdated={() => window.location.reload()}
               />
             ) : (
-              <ArtifactCard key={artifact.id} artifact={artifact} variant="compact" />
+              <ArtifactCard key={artifact.id} artifact={artifact} variant="compact" lang={lang} />
             )
           )}
         </div>

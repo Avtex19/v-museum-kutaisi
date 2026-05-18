@@ -7,6 +7,8 @@ import { AudioGuide } from "@/components/artifact/AudioGuide";
 import { BackLink } from "@/components/ui/BackLink";
 import { CategoryTag } from "@/components/ui/CategoryTag";
 import { fetchArtifact } from "@/lib/api";
+import { getLang, pick } from "@/lib/lang";
+import { translations } from "@/lib/translations";
 import type { ArtifactDetail } from "@/lib/types";
 
 export default async function ArtifactDetailPage({
@@ -15,6 +17,8 @@ export default async function ArtifactDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+  const lang = await getLang();
+  const tr = translations[lang];
 
   let artifact: ArtifactDetail;
   try {
@@ -23,16 +27,17 @@ export default async function ArtifactDetailPage({
     notFound();
   }
 
-  const title = artifact.name_en || artifact.name_ka;
-  const lead = artifact.short_description_en || artifact.short_description_ka;
-  const about = artifact.description_en || artifact.description_ka;
-  const audioSrc =
-    artifact.audio_annotation_en || artifact.audio_annotation_ka;
+  const title = pick(lang, artifact.name_en, artifact.name_ka);
+  const lead = pick(lang, artifact.short_description_en, artifact.short_description_ka);
+  const about = pick(lang, artifact.description_en, artifact.description_ka);
+  const audioSrc = pick(lang, artifact.audio_annotation_en, artifact.audio_annotation_ka);
+  const roomName = pick(lang, artifact.room.name_en, artifact.room.name_ka);
+
   return (
     <main className="min-h-screen bg-neutral-950 text-neutral-100">
       <div className="mx-auto max-w-6xl px-6 py-10">
         <BackLink href={`/rooms/${artifact.room.slug}`}>
-          Back to {artifact.room.name_en || artifact.room.name_ka}
+          {tr.backTo} {roomName}
         </BackLink>
 
         <div className="mt-8 grid grid-cols-1 gap-12 lg:grid-cols-2">
@@ -63,9 +68,16 @@ export default async function ArtifactDetailPage({
               </div>
             )}
 
-            <ArtifactMetadata artifact={artifact} />
+            <ArtifactMetadata artifact={artifact} lang={lang} />
 
-            {about && <AboutSection text={about} />}
+            {about && (
+              <AboutSection
+                text={about}
+                label={tr.aboutThisObject}
+                viewMore={tr.viewMore}
+                viewLess={tr.viewLess}
+              />
+            )}
           </article>
         </div>
       </div>
