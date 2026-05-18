@@ -1,3 +1,4 @@
+import { localizeEra } from "@/lib/translations";
 import type { ArtifactDetail } from "@/lib/types";
 
 type Labels = {
@@ -36,7 +37,7 @@ export function ArtifactMetadata({
   const l = lang === "ka" ? KA_LABELS : EN_LABELS;
 
   const fields: Field[] = [
-    { label: l.date, value: artifact.date_range },
+    { label: l.date, value: localizeEra(artifact.date_range, lang) },
     { label: l.material, value: artifact.material },
     { label: l.dimensions, value: artifact.dimensions },
     { label: l.origin, value: artifact.origin_location },
