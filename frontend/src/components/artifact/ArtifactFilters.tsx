@@ -37,7 +37,7 @@ export function ArtifactFilters({ action, values, periods, rooms, lang = "en" }:
       <Select name="category" value={values.category} placeholder={tr.category}>
         {ARTIFACT_CATEGORIES.map((c) => (
           <option key={c.value} value={c.value}>
-            {c.label}
+            {lang === "ka" ? c.label_ka : c.label}
           </option>
         ))}
       </Select>
@@ -45,7 +45,7 @@ export function ArtifactFilters({ action, values, periods, rooms, lang = "en" }:
       <Select name="period" value={values.period} placeholder={tr.period}>
         {periods.map((p) => (
           <option key={p.slug} value={p.slug}>
-            {lang === "ka" ? p.name_ka || p.name_en : p.name_en || p.name_ka}
+            {lang === "ka" ? p.name_ka || p.era_display : p.name_en || p.name_ka}
           </option>
         ))}
       </Select>
